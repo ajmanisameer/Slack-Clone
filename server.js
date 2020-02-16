@@ -4,7 +4,7 @@ const path = require("path");
 const http = require("http");
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
-const { generateMessage } = require('./utils/message')
+const { generateMessage, generateLocationMessage } = require('./utils/message')
 const bodyParser = require("body-parser");
 const socketIO = require("socket.io");
 // const userRoutes = require('./routes/user')
@@ -47,6 +47,10 @@ io.on("connection", socket => {
     callback('This is Server')
   });
 
+  //capturing current location
+  socket.on("createLocationMessage",(coords)=>{
+    io.emit("newLocationMessage", generateLocationMessage('Admin', coords.lat, coords.lng))
+  })
   socket.on("disconnect", () => {  
     console.log("User Disconnected");
   });
