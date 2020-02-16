@@ -4,6 +4,7 @@ const path = require("path");
 const http = require("http");
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
+const { generateMessage } = require('./utils/message')
 const bodyParser = require("body-parser");
 const socketIO = require("socket.io");
 // const userRoutes = require('./routes/user')
@@ -33,30 +34,20 @@ io.on("connection", socket => {
   console.log("A new User Connected");
 
   //message to everyone who connects
-  socket.emit("newMessage", {
-    from: "Admin",
-    text: "Welcome to the Channel",
-    createdAt: new Date().getTime()
-  });
+  socket.emit("newMessage", generateMessage('Admin', 'Welcome to the channel'));
 
   //Message when a new User JOins
-  socket.broadcast.emit("newMessage", {
-    from: "Admin",
-    text: "New User Joined",
-    createdAt: new Date().getTime()
-  });
-
-  socket.on("createMessage", message => {
+  socket.broadcast.emit("newMessage", generateMessage('Admin','New User Joined'));
+  
+  
+  socket.on("createMessage", (message, callback) => {
     console.log("createMessage", message);
     // broadcasting message to everyone
-    io.emit("newMessage", {
-      from: message.from,
-      text: message.text,
-      createdAt: new Date().getTime()
-    });
+    io.emit("newMessage", generateMessage(message.from, message.text));
+    callback('This is Server')
   });
 
-  socket.on("disconnect", () => {
+  socket.on("disconnect", () => {  
     console.log("User Disconnected");
   });
 });
